@@ -325,57 +325,6 @@ export function AdminTrips() {
   );
 }
 
-interface AdminPaymentRow {
-  id: string;
-  amount_ghs: number;
-  status: string;
-  provider: string;
-  provider_reference: string | null;
-  created_at: string;
-  is_demo: boolean;
-}
-
-export function AdminPayments() {
-  const { data, isLoading, isError, error, refetch } = useAdminTable<AdminPaymentRow>(
-    "payments",
-    "payments",
-    "id, amount_ghs, status, provider, provider_reference, created_at, is_demo",
-    "created_at",
-  );
-
-  return (
-    <RecordTable
-      seoTitle="Payments · PortBackhaul Admin"
-      path="/admin/payments"
-      eyebrow="Admin Dashboard"
-      title="Payments"
-      subtitle="Payment records are written only by secure server-side functions."
-      icon={FileText}
-      isLoading={isLoading}
-      rows={data ?? []}
-      error={isError ? error : undefined}
-      onRetry={() => void refetch()}
-      columns={["Reference", "Provider", "Amount", "Status", "Created"]}
-      renderRow={(row) => (
-        <tr key={row.id} className="data-grid-row">
-          <td className="px-5 py-4">
-            <span className="flex items-center gap-2">
-              <span className="font-mono text-xs tabular">{row.provider_reference ?? "—"}</span>
-              {row.is_demo ? <DemoBadge /> : null}
-            </span>
-          </td>
-          <td className="px-5 py-4 text-muted-foreground">{row.provider}</td>
-          <td className="px-5 py-4 font-mono font-semibold tabular">{formatGhs(row.amount_ghs)}</td>
-          <td className="px-5 py-4">
-            <StatusBadge status={row.status} raw />
-          </td>
-          <td className="px-5 py-4 text-muted-foreground tabular">{formatDate(row.created_at)}</td>
-        </tr>
-      )}
-    />
-  );
-}
-
 interface RecordTableProps<T> {
   seoTitle: string;
   path: string;

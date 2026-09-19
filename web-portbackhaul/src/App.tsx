@@ -13,11 +13,11 @@ import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 import AdminDisputes from "./pages/admin/AdminDisputes";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import AdminOverview from "./pages/admin/AdminOverview";
+import AdminPayments from "./pages/admin/AdminPayments";
 import {
   AdminCargo,
   AdminClearingAgents,
   AdminDrivers,
-  AdminPayments,
   AdminTrips,
   AdminTrucks,
 } from "./pages/admin/AdminRecords";
