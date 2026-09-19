@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { useAdminOverview } from "@/hooks/use-admin";
@@ -21,7 +22,7 @@ import { formatGhs } from "@/lib/format";
 
 export default function AdminOverview() {
   const { profile } = useAuth();
-  const { data, isLoading } = useAdminOverview();
+  const { data, isLoading, isError, error, refetch } = useAdminOverview();
 
   return (
     <div className="mx-auto w-full max-w-[1400px] animate-fade space-y-7">
@@ -38,7 +39,11 @@ export default function AdminOverview() {
         }
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="platform metrics" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading platform metrics…</div>
       ) : (
         <>

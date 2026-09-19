@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -45,7 +46,7 @@ export default function AgentTrips() {
   const { profile } = useAuth();
   const [filter, setFilter] = useState<string>("ALL");
 
-  const { data: shipments, isLoading } = useShipments();
+  const { data: shipments, isLoading, isError, error, refetch } = useShipments();
   const { data: trips } = useTrips();
   const { data: trucks } = useTrucks();
   const { data: assignments } = useAssignments();
@@ -145,7 +146,9 @@ export default function AgentTrips() {
       </div>
 
       <div className="panel overflow-hidden">
-        {isLoading ? (
+        {isError ? (
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="shipments" compact />
+        ) : isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading shipments…</div>
         ) : filtered.length === 0 ? (
           <EmptyState

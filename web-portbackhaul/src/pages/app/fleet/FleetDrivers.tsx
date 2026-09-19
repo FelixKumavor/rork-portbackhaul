@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -20,7 +21,7 @@ import { formatDate } from "@/lib/format";
 
 export default function FleetDrivers() {
   const { user } = useAuth();
-  const { data: drivers, isLoading } = useDrivers();
+  const { data: drivers, isLoading, isError, error, refetch } = useDrivers();
   const { data: directory } = useDriverDirectory();
   const { data: trucks } = useTrucks();
   const updateDriver = useUpdateDriver();
@@ -54,7 +55,11 @@ export default function FleetDrivers() {
         subtitle="Link verified drivers to your trucks. Only verified drivers can be matched to cargo."
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="drivers" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading drivers…</div>
       ) : myDrivers.length === 0 ? (
         <div className="panel">

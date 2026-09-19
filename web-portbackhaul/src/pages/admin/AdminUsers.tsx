@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -76,7 +77,7 @@ export default function AdminUsers() {
   const [pendingAction, setPendingAction] = useState<{ user: AdminUser; action: AdminAction } | null>(null);
   const [reason, setReason] = useState<string>("");
 
-  const { data: users, isLoading } = useAdminUsers({ status, role, search });
+  const { data: users, isLoading, isError, error, refetch } = useAdminUsers({ status, role, search });
   const accountAction = useAdminAccountAction();
 
   function openAction(user: AdminUser, action: AdminAction) {
@@ -173,7 +174,9 @@ export default function AdminUsers() {
       </div>
 
       <div className="panel overflow-hidden">
-        {isLoading ? (
+        {isError ? (
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="accounts" compact />
+        ) : isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading accounts…</div>
         ) : rows.length === 0 ? (
           <EmptyState

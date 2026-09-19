@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { describeError } from "@/lib/errors";
 
 export default function AdminSettings() {
   const { hasPermission } = useAuth();
-  const { data: settings, isLoading } = useAllPlatformSettings();
+  const { data: settings, isLoading, isError, error, refetch } = useAllPlatformSettings();
   const { data: locations } = useLocations();
   const update = useUpdatePlatformSetting();
 
@@ -62,7 +63,11 @@ export default function AdminSettings() {
         </div>
       ) : null}
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="platform settings" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading settings…</div>
       ) : (
         <div className="space-y-5">

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -33,7 +34,7 @@ const ACTIVE_STATUSES = [
 
 export default function Shipments() {
   const { profile } = useAuth();
-  const { data: shipments, isLoading } = useShipments();
+  const { data: shipments, isLoading, isError, error, refetch } = useShipments();
   const { data: trips } = useTrips();
   const [tab, setTab] = useState<string>("ACTIVE");
 
@@ -98,7 +99,11 @@ export default function Shipments() {
         ))}
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="shipments" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading shipments…</div>
       ) : rows.length === 0 ? (
         <div className="panel">

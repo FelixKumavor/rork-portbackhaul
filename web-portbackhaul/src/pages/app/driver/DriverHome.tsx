@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -39,7 +40,13 @@ const ACTIVE_TRIP_STATUSES = [
 
 export default function DriverHome() {
   const { profile } = useAuth();
-  const { data: driver, isLoading: loadingDriver } = useMyDriverRecord();
+  const {
+    data: driver,
+    isLoading: loadingDriver,
+    isError: driverFailed,
+    error: driverError,
+    refetch: refetchDriver,
+  } = useMyDriverRecord();
   const { data: assignments } = useAssignments();
   const { data: trips } = useTrips();
   const { data: shipments } = useShipments();
@@ -99,6 +106,14 @@ export default function DriverHome() {
     } catch (error) {
       toast.error(describeError(error));
     }
+  }
+
+  if (driverFailed) {
+    return (
+      <div className="p-8">
+        <QueryErrorState error={driverError} onRetry={() => void refetchDriver()} subject="your driver profile" />
+      </div>
+    );
   }
 
   if (loadingDriver) {

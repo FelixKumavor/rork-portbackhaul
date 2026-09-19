@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -13,7 +14,7 @@ import { describeError } from "@/lib/errors";
 import { formatDate, formatGhs } from "@/lib/format";
 
 export default function DriverEarnings() {
-  const { data: payouts, isLoading } = usePayouts();
+  const { data: payouts, isLoading, isError, error, refetch } = usePayouts();
   const { data: trips } = useTrips();
   const requestPayout = useRequestPayout();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -63,7 +64,11 @@ export default function DriverEarnings() {
         </div>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="earnings" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading…</div>
       ) : (payouts ?? []).length === 0 ? (
         <div className="panel">

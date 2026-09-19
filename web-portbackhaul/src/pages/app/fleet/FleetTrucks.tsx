@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -31,7 +32,7 @@ import { TRUCK_TYPES } from "@/lib/status";
 
 export default function FleetTrucks() {
   const { profile, user } = useAuth();
-  const { data: trucks, isLoading } = useTrucks();
+  const { data: trucks, isLoading, isError, error, refetch } = useTrucks();
   const { data: trips } = useTrips();
   const { data: payouts } = usePayouts();
   const createTruck = useCreateTruck();
@@ -103,7 +104,11 @@ export default function FleetTrucks() {
         <Stat label="Earnings paid" value={formatGhs(earnings)} mono />
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="fleet" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading fleet…</div>
       ) : myTrucks.length === 0 ? (
         <div className="panel">

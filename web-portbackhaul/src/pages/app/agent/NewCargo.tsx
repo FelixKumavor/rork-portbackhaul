@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -14,7 +15,7 @@ import { describeError } from "@/lib/errors";
 import { formatDate, formatWeight } from "@/lib/format";
 
 export default function NewCargo() {
-  const { data: shipments, isLoading } = useShipments();
+  const { data: shipments, isLoading, isError, error, refetch } = useShipments();
   const accept = useAcceptCargoAssignment();
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -42,7 +43,11 @@ export default function NewCargo() {
         subtitle="Shipments that cargo owners have assigned to you and are waiting for your acceptance."
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="cargo assignments" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading…</div>
       ) : pending.length === 0 ? (
         <div className="panel">

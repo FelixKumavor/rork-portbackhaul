@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -23,7 +24,7 @@ import { describeError } from "@/lib/errors";
 import { formatDateTime } from "@/lib/format";
 
 export default function AdminDisputes() {
-  const { data, isLoading } = useDisputes();
+  const { data, isLoading, isError, error, refetch } = useDisputes();
   const resolve = useResolveDispute();
 
   const [active, setActive] = useState<Dispute | null>(null);
@@ -58,7 +59,11 @@ export default function AdminDisputes() {
         subtitle="Issues raised by cargo owners, agents, drivers and terminal operators."
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="disputes" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading disputes…</div>
       ) : rows.length === 0 ? (
         <div className="panel">

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { History } from "lucide-react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -22,7 +23,7 @@ interface VerificationRecord {
 export default function LoadingHistory() {
   const { user } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["loading-verifications", user?.id],
     enabled: Boolean(user?.id),
     queryFn: async (): Promise<VerificationRecord[]> => {
@@ -49,7 +50,11 @@ export default function LoadingHistory() {
         subtitle="Every action you record is written to the platform audit log."
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="verification history" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading…</div>
       ) : records.length === 0 ? (
         <div className="panel">

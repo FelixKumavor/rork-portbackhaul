@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -15,7 +16,7 @@ import { formatDate, formatGhs } from "@/lib/format";
 const DONE = ["DELIVERED", "COMPLETED", "CANCELLED"];
 
 export default function CompletedTrips() {
-  const { data: shipments, isLoading } = useShipments();
+  const { data: shipments, isLoading, isError, error, refetch } = useShipments();
   const { data: trips } = useTrips();
 
   const completed = useMemo(() => (shipments ?? []).filter((s) => DONE.includes(s.status)), [shipments]);
@@ -32,7 +33,11 @@ export default function CompletedTrips() {
 
       <PageHeader eyebrow="Archive" title="Completed shipments" subtitle="Delivered, completed and cancelled records." />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="completed shipments" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading…</div>
       ) : completed.length === 0 ? (
         <div className="panel">

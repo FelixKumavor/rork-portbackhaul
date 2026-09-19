@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -14,7 +15,7 @@ import { relativeTime } from "@/lib/format";
 import { TRUCK_TYPES } from "@/lib/status";
 
 export default function AvailableTrucks() {
-  const { data: trucks, isLoading } = useTrucks();
+  const { data: trucks, isLoading, isError, error, refetch } = useTrucks();
   const { data: drivers } = useDriverDirectory();
 
   const [search, setSearch] = useState<string>("");
@@ -81,7 +82,11 @@ export default function AvailableTrucks() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="trucks" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading trucks…</div>
       ) : filtered.length === 0 ? (
         <div className="panel">

@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { RouteMap } from "@/components/RouteMap";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -20,7 +21,7 @@ export default function TripDetail() {
   const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
 
-  const { data: trip, isLoading } = useTrip(id);
+  const { data: trip, isLoading, isError, error, refetch } = useTrip(id);
   const { data: shipment } = useShipment(trip?.shipment_id);
   const { data: trucks } = useTrucks();
   const { data: drivers } = useDriverDirectory();
@@ -33,6 +34,14 @@ export default function TripDetail() {
   const truck = useMemo(() => (trucks ?? []).find((t) => t.id === trip?.truck_id) ?? null, [trucks, trip]);
   const driver = trip ? (drivers?.[trip.driver_id] ?? null) : null;
   const lastPing = locations?.[locations.length - 1] ?? null;
+
+  if (isError) {
+    return (
+      <div className="p-8">
+        <QueryErrorState error={error} onRetry={() => void refetch()} subject="this trip" />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -53,6 +53,11 @@ const PAYMENT_TONE: Record<string, StatusTone> = {
   FAILED: "danger",
   REFUNDED: "neutral",
   DISPUTED: "danger",
+  PROCESSING: "progress",
+  SUCCESS: "verified",
+  CANCELLED: "neutral",
+  REVERSED: "danger",
+  NONE: "neutral",
 };
 
 /** Maps any platform status string onto its visual tone. */

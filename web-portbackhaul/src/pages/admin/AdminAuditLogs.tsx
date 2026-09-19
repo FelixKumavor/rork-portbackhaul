@@ -2,6 +2,7 @@ import { ScrollText, Search } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { formatDateTime } from "@/lib/format";
 
 export default function AdminAuditLogs() {
   const [search, setSearch] = useState<string>("");
-  const { data, isLoading } = useAuditLogs(search);
+  const { data, isLoading, isError, error, refetch } = useAuditLogs(search);
 
   const rows = data ?? [];
 
@@ -36,7 +37,9 @@ export default function AdminAuditLogs() {
       </div>
 
       <div className="panel overflow-hidden">
-        {isLoading ? (
+        {isError ? (
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="audit records" compact />
+        ) : isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading audit trail…</div>
         ) : rows.length === 0 ? (
           <EmptyState icon={ScrollText} title="No audit records" description="Actions taken on the platform appear here." />

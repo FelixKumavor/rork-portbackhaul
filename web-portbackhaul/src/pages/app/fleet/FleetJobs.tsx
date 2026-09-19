@@ -2,6 +2,7 @@ import { Briefcase } from "lucide-react";
 import { useMemo } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -11,7 +12,7 @@ import { useTrips } from "@/hooks/use-trips";
 import { formatDate, formatGhs } from "@/lib/format";
 
 export default function FleetJobs() {
-  const { data: trips, isLoading } = useTrips();
+  const { data: trips, isLoading, isError, error, refetch } = useTrips();
   const { data: trucks } = useTrucks();
   const { data: drivers } = useDriverDirectory();
   const { data: payouts } = usePayouts();
@@ -44,7 +45,11 @@ export default function FleetJobs() {
         <Stat label="Awaiting payout" value={formatGhs(totals.pending)} mono />
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="jobs" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading jobs…</div>
       ) : rows.length === 0 ? (
         <div className="panel">

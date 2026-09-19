@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { DemoBadge } from "@/components/DemoBadge";
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { RouteMap } from "@/components/RouteMap";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -45,7 +46,7 @@ export default function ShipmentDetail() {
   const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
 
-  const { data: shipment, isLoading } = useShipment(id);
+  const { data: shipment, isLoading, isError, error, refetch } = useShipment(id);
   const { data: trips } = useTrips();
   const { data: trucks } = useTrucks();
   const { data: drivers } = useDriverDirectory();
@@ -61,6 +62,14 @@ export default function ShipmentDetail() {
   const [disputeOpen, setDisputeOpen] = useState<boolean>(false);
   const [disputeCategory, setDisputeCategory] = useState<string>("DELAY");
   const [disputeText, setDisputeText] = useState<string>("");
+
+  if (isError) {
+    return (
+      <div className="p-8">
+        <QueryErrorState error={error} onRetry={() => void refetch()} subject="this shipment" />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

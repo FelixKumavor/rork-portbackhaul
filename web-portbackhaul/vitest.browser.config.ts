@@ -14,6 +14,8 @@ export default defineConfig({
       headless: true,
       provider: playwright(),
       instances: [{ browser: "chromium" }],
+      // Sandboxed CI/container environments need --no-sandbox to launch Chrome.
+      launchOptions: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },
     },
   },
   resolve: {

@@ -811,6 +811,256 @@ export type Database = {
           },
         ]
       }
+      payment_recipients: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          is_active: boolean
+          momo_provider: string
+          phone: string
+          recipient_code: string | null
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          momo_provider: string
+          phone: string
+          recipient_code?: string | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          momo_provider?: string
+          phone?: string
+          recipient_code?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_recipients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          new_status: string
+          note: string | null
+          old_status: string | null
+          source: string
+          transaction_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          new_status: string
+          note?: string | null
+          old_status?: string | null
+          source?: string
+          transaction_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          new_status?: string
+          note?: string | null
+          old_status?: string | null
+          source?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_status_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount_pesewas: number
+          created_at: string
+          currency: string
+          description: string | null
+          email: string
+          failure_reason: string | null
+          full_name: string
+          gateway_response: string | null
+          id: string
+          metadata: Json
+          momo_provider: string
+          paid_at: string | null
+          payer_id: string
+          payout_status: string
+          phone: string
+          provider_status: string | null
+          provider_transaction_id: string | null
+          purpose: string
+          recipient_user_id: string | null
+          reference: string
+          refunded_at: string | null
+          request_key: string
+          shipment_id: string | null
+          status: string
+          trip_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_pesewas: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          email: string
+          failure_reason?: string | null
+          full_name: string
+          gateway_response?: string | null
+          id?: string
+          metadata?: Json
+          momo_provider: string
+          paid_at?: string | null
+          payer_id: string
+          payout_status?: string
+          phone: string
+          provider_status?: string | null
+          provider_transaction_id?: string | null
+          purpose?: string
+          recipient_user_id?: string | null
+          reference: string
+          refunded_at?: string | null
+          request_key: string
+          shipment_id?: string | null
+          status?: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_pesewas?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          email?: string
+          failure_reason?: string | null
+          full_name?: string
+          gateway_response?: string | null
+          id?: string
+          metadata?: Json
+          momo_provider?: string
+          paid_at?: string | null
+          payer_id?: string
+          payout_status?: string
+          phone?: string
+          provider_status?: string | null
+          provider_transaction_id?: string | null
+          purpose?: string
+          recipient_user_id?: string | null
+          reference?: string
+          refunded_at?: string | null
+          request_key?: string
+          shipment_id?: string | null
+          status?: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "cargo_shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trip_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_webhook_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string
+          provider: string
+          provider_event_id: string
+          reference: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          processed_at?: string
+          provider?: string
+          provider_event_id: string
+          reference?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string
+          provider?: string
+          provider_event_id?: string
+          reference?: string | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount_ghs: number
@@ -893,6 +1143,91 @@ export type Database = {
           },
         ]
       }
+      payout_records: {
+        Row: {
+          amount_pesewas: number
+          attempts: number
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          processed_at: string | null
+          provider_reference: string | null
+          provider_transfer_code: string | null
+          recipient_code_snapshot: string | null
+          recipient_name: string | null
+          recipient_network: string | null
+          recipient_phone: string | null
+          recipient_record_id: string | null
+          recipient_user_id: string
+          status: string
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_pesewas: number
+          attempts?: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          processed_at?: string | null
+          provider_reference?: string | null
+          provider_transfer_code?: string | null
+          recipient_code_snapshot?: string | null
+          recipient_name?: string | null
+          recipient_network?: string | null
+          recipient_phone?: string | null
+          recipient_record_id?: string | null
+          recipient_user_id: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_pesewas?: number
+          attempts?: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          processed_at?: string | null
+          provider_reference?: string | null
+          provider_transfer_code?: string | null
+          recipient_code_snapshot?: string | null
+          recipient_name?: string | null
+          recipient_network?: string | null
+          recipient_phone?: string | null
+          recipient_record_id?: string | null
+          recipient_user_id?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_records_recipient_record_id_fkey"
+            columns: ["recipient_record_id"]
+            isOneToOne: false
+            referencedRelation: "payment_recipients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_records_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_records_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payouts: {
         Row: {
           amount_ghs: number
@@ -959,6 +1294,44 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trip_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_commissions: {
+        Row: {
+          commission_pesewas: number
+          created_at: string
+          id: string
+          net_amount_pesewas: number
+          rate_bp: number
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_pesewas: number
+          created_at?: string
+          id?: string
+          net_amount_pesewas: number
+          rate_bp?: number
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_pesewas?: number
+          created_at?: string
+          id?: string
+          net_amount_pesewas?: number
+          rate_bp?: number
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_commissions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "payment_transactions"
             referencedColumns: ["id"]
           },
         ]

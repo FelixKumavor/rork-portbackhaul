@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useAuth } from "@/hooks/use-auth";
@@ -46,7 +47,7 @@ interface CargoRow {
 }
 
 export function AdminCargo() {
-  const { data, isLoading } = useAdminTable<CargoRow>(
+  const { data, isLoading, isError, error, refetch } = useAdminTable<CargoRow>(
     "cargo",
     "cargo_shipments",
     "id, cargo_ref, description, status, weight_kg, pickup_location_text, destination_city, transport_fee_ghs, is_demo, created_at",
@@ -63,6 +64,8 @@ export function AdminCargo() {
       icon={FileText}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Cargo ID", "Description", "Route", "Weight", "Fee", "Status", "Created"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -100,7 +103,7 @@ interface TruckRow {
 }
 
 export function AdminTrucks() {
-  const { data, isLoading } = useAdminTable<TruckRow>(
+  const { data, isLoading, isError, error, refetch } = useAdminTable<TruckRow>(
     "trucks",
     "trucks",
     "id, registration_no, truck_type, capacity_tons, verification_status, is_available, is_demo, created_at",
@@ -117,6 +120,8 @@ export function AdminTrucks() {
       icon={Truck}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Registration", "Type", "Capacity", "Verification", "Availability", "Registered"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -155,7 +160,7 @@ interface DriverRow {
 export function AdminDrivers() {
   const { hasPermission } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["admin-table", "drivers"],
     enabled: hasPermission("ADMIN_VIEW"),
     queryFn: async (): Promise<DriverRow[]> => {
@@ -180,6 +185,8 @@ export function AdminDrivers() {
       icon={Users}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Driver", "Licence", "Expiry", "Trips", "Verification", "Duty"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -215,7 +222,7 @@ interface AgentRow {
 export function AdminClearingAgents() {
   const { hasPermission } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["admin-table", "clearing-agents"],
     enabled: hasPermission("ADMIN_VIEW"),
     queryFn: async (): Promise<AgentRow[]> => {
@@ -240,6 +247,8 @@ export function AdminClearingAgents() {
       icon={ShieldCheck}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Company", "Contact", "Licence", "Office", "Account", "Registered"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -269,7 +278,7 @@ interface TripRow {
 }
 
 export function AdminTrips() {
-  const { data, isLoading } = useAdminTable<TripRow>(
+  const { data, isLoading, isError, error, refetch } = useAdminTable<TripRow>(
     "trips",
     "trip_assignments",
     "id, trip_ref, status, pickup_location_text, destination_text, transport_fee_ghs, assigned_at, is_demo",
@@ -291,6 +300,8 @@ export function AdminTrips() {
       icon={MapPin}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Trip", "Route", "Fee", "Status", "Assigned"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -325,7 +336,7 @@ interface AdminPaymentRow {
 }
 
 export function AdminPayments() {
-  const { data, isLoading } = useAdminTable<AdminPaymentRow>(
+  const { data, isLoading, isError, error, refetch } = useAdminTable<AdminPaymentRow>(
     "payments",
     "payments",
     "id, amount_ghs, status, provider, provider_reference, created_at, is_demo",
@@ -342,6 +353,8 @@ export function AdminPayments() {
       icon={FileText}
       isLoading={isLoading}
       rows={data ?? []}
+      error={isError ? error : undefined}
+      onRetry={() => void refetch()}
       columns={["Reference", "Provider", "Amount", "Status", "Created"]}
       renderRow={(row) => (
         <tr key={row.id} className="data-grid-row">
@@ -370,6 +383,8 @@ interface RecordTableProps<T> {
   title: string;
   subtitle: string;
   icon: typeof FileText;
+  error?: unknown;
+  onRetry?: () => void;
   isLoading: boolean;
   rows: T[];
   columns: string[];
@@ -383,6 +398,8 @@ function RecordTable<T>({
   title,
   subtitle,
   icon,
+  error,
+  onRetry,
   isLoading,
   rows,
   columns,
@@ -394,7 +411,9 @@ function RecordTable<T>({
       <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
 
       <div className="panel overflow-hidden">
-        {isLoading ? (
+        {error && onRetry ? (
+          <QueryErrorState error={error} onRetry={onRetry} subject="records" compact />
+        ) : isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading records…</div>
         ) : rows.length === 0 ? (
           <EmptyState icon={icon} title="No records yet" description="Records appear here as the platform is used." />

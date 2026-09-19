@@ -1,6 +1,7 @@
 import { CreditCard, Map, Plug, ShieldAlert, Smartphone } from "lucide-react";
 
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { Seo } from "@/components/Seo";
 import { useCustomsIntegrations } from "@/hooks/use-platform-data";
 import { CUSTOMS_DISCLAIMER } from "@/lib/customsIntegration";
@@ -29,7 +30,7 @@ const PLATFORM_INTEGRATIONS = [
 ];
 
 export default function AdminIntegrations() {
-  const { data: customs, isLoading } = useCustomsIntegrations();
+  const { data: customs, isLoading, isError, error, refetch } = useCustomsIntegrations();
 
   return (
     <div className="mx-auto w-full max-w-[1000px] animate-fade space-y-6">
@@ -49,7 +50,9 @@ export default function AdminIntegrations() {
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{CUSTOMS_DISCLAIMER}</p>
 
         <div className="mt-5 space-y-3">
-          {isLoading ? (
+          {isError ? (
+            <QueryErrorState error={error} onRetry={() => void refetch()} subject="integration status" compact />
+          ) : isLoading ? (
             <p className="text-sm text-muted-foreground">Loading integration status…</p>
           ) : (
             (customs ?? []).map((integration) => (

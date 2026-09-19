@@ -1,6 +1,7 @@
 import { Bell, CheckCheck } from "lucide-react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export default function NotificationsPage() {
-  const { data, isLoading } = useNotifications();
+  const { data, isLoading, isError, error, refetch } = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
 
@@ -35,7 +36,9 @@ export default function NotificationsPage() {
       />
 
       <div className="panel divide-y divide-border">
-        {isLoading ? (
+        {isError ? (
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="notifications" compact />
+        ) : isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading…</div>
         ) : notifications.length === 0 ? (
           <EmptyState

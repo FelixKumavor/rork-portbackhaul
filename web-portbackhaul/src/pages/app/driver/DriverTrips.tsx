@@ -2,6 +2,7 @@ import { Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -10,7 +11,7 @@ import { useTrips } from "@/hooks/use-trips";
 import { formatDate, formatGhs } from "@/lib/format";
 
 export default function DriverTrips() {
-  const { data: trips, isLoading } = useTrips();
+  const { data: trips, isLoading, isError, error, refetch } = useTrips();
   const rows = trips ?? [];
 
   return (
@@ -19,7 +20,11 @@ export default function DriverTrips() {
 
       <PageHeader eyebrow="Driver" title="My trips" subtitle="Every trip assigned to you, newest first." />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="panel">
+          <QueryErrorState error={error} onRetry={() => void refetch()} subject="trips" compact />
+        </div>
+      ) : isLoading ? (
         <div className="panel p-6 text-sm text-muted-foreground">Loading trips…</div>
       ) : rows.length === 0 ? (
         <div className="panel">

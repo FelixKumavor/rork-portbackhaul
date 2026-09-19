@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { RouteMap } from "@/components/RouteMap";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -42,7 +43,7 @@ export default function DriverTrip() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
 
-  const { data: trip, isLoading } = useTrip(id);
+  const { data: trip, isLoading, isError, error, refetch } = useTrip(id);
   const { data: shipment } = useShipment(trip?.shipment_id);
   const { data: trucks } = useTrucks();
   const { data: history } = useTripHistory(id);
@@ -128,6 +129,14 @@ export default function DriverTrip() {
     const interval = window.setInterval(push, 120_000);
     return () => window.clearInterval(interval);
   }, [sharing, trip?.id, isTracked, recordLocation]);
+
+  if (isError) {
+    return (
+      <div className="p-8">
+        <QueryErrorState error={error} onRetry={() => void refetch()} subject="this trip" />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -32,6 +32,13 @@ export const ERROR_MESSAGES: Record<string, string> = {
   WEAK_PASSWORD: "Use a password of at least 8 characters.",
   INVALID_REDIRECT: "Could not start the verification flow. Please try again.",
   SIGNUP_FAILED: "Could not create your account. Please try again.",
+  PAYMENT_PROVIDER_ERROR: "The payment provider could not complete this request. Please try again shortly.",
+  RECIPIENT_REQUIRED: "The carrier has not set up their mobile money payout details yet, so this trip cannot be paid.",
+  PAYOUT_DETAILS_LOCKED: "These payout details are locked because a settlement is already in progress.",
+  INVALID_PHONE: "Enter a valid Ghana mobile money number (e.g. 024 123 4567).",
+  INVALID_MOMO_NETWORK: "Choose a supported mobile money network (MTN, Telecel or AirtelTigo).",
+  INVALID_AMOUNT: "Enter a valid payment amount.",
+  EMAIL_REQUIRED: "An email address is required by the payment provider. Add one to your profile.",
 };
 
 /**
