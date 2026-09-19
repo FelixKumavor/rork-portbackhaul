@@ -39,6 +39,9 @@ interface PaystackEvent {
   data: {
     id?: number | string;
     reference?: string;
+    // Refund events (refund.processed / refund.failed) carry the charge
+    // reference under transaction_reference instead of reference.
+    transaction_reference?: string;
     transfer_code?: string;
     status?: string;
     amount?: number;
@@ -104,7 +107,7 @@ Deno.serve(async (req) => {
   }
 
   const supabase = admin();
-  const reference = event.data?.reference ?? null;
+  const reference = event.data?.reference ?? event.data?.transaction_reference ?? null;
   const providerEventId = String(event.data?.id ?? `${event.event}:${reference ?? ""}`);
 
   // ---- idempotency gate (new ledger) -------------------------------------
