@@ -55,6 +55,16 @@ export function describeError(error: unknown, fallback = "Something went wrong. 
 
   if (!raw) return fallback;
 
+  // Temporary development diagnostics: expose the real provider error
+  // (code / status / message) in the console so auth issues are traceable.
+  // Only error metadata is logged — never credentials, tokens or secrets.
+  if (import.meta.env.DEV) {
+    const err = error as { code?: string; status?: number };
+    console.error(
+      `[auth-error] code=${err.code ?? "n/a"} status=${err.status ?? "n/a"} message=${raw.slice(0, 200)}`,
+    );
+  }
+
   for (const code of Object.keys(ERROR_MESSAGES)) {
     if (raw.includes(code)) return ERROR_MESSAGES[code];
   }

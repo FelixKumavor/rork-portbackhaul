@@ -301,25 +301,26 @@ Deno.serve(async (req) => {
       emailKind = "reset";
     } else {
       const password = action === "resend" ? null : assertValidPassword(body.password);
-      const { data: link, error: linkError } = await admin.auth.admin.generateLink({
-        type: "signup",
-        email,
-        ...(password === null
-          ? {}
-          : {
-              password,
-              options: {
-                redirectTo: redirectToRaw!,
-                data: {
-                  full_name: typeof body.full_name === "string" ? body.full_name : null,
-                  phone: typeof body.phone === "string" ? body.phone : null,
-                  company_name: typeof body.company_name === "string" ? body.company_name : null,
-                  // The database trigger rejects ADMIN — roles cannot be self-escalated.
-                  role: typeof body.role === "string" && SIGNUP_ROLES.has(body.role) ? body.role : "CARGO_OWNER",
-                },
-              },
-            }),
-      });
+      const signupMeta = {
+        redirectTo: redirectToRaw!,
+        data: {
+          full_name: typeof body.full_name === "string" ? body.full_name : null,
+          phone: typeof body.phone === "string" ? body.phone : null,
+          company_name: typeof body.company_name === "string" ? body.company_name : null,
+          // The database trigger rejects ADMIN — roles cannot be self-escalated.
+          role: typeof body.role === "string" && SIGNUP_ROLES.has(body.role) ? body.role : "CARGO_OWNER",
+        },
+      };
+      // The resend probe intentionally omits `password` so GoTrue's own
+      // validation rejects unknown addresses (anti-enumeration). The signup
+      // link contract requires a password, so the two payloads are built
+      // separately instead of conditionally spreading one object literal.
+      const linkParams = (
+        password === null
+          ? { type: "signup" as const, email }
+          : { type: "signup" as const, email, password, options: signupMeta }
+      ) as Parameters<typeof admin.auth.admin.generateLink>[0];
+      const { data: link, error: linkError } = await admin.auth.admin.generateLink(linkParams);
 
       if (linkError || !link) {
         const message = linkError?.message ?? "";

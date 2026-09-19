@@ -102,7 +102,13 @@ Deno.serve(async (req) => {
     // ---- B: resend path (no password) ------------------------------------
     const emailB = `diag-resend-${stamp}${DIAG_DOMAIN}`;
     try {
-      const { data: linkB, error: linkBErr } = await admin.auth.admin.generateLink({ type: "signup", email: emailB });
+      // Test B probes GoTrue's rejection of passwordless signup links. The
+      // type contract requires `password` on signup links, so this intentional
+      // protocol probe bypasses it — the runtime payload stays unchanged.
+      const paramsB = { type: "signup", email: emailB } as unknown as Parameters<
+        typeof admin.auth.admin.generateLink
+      >[0];
+      const { data: linkB, error: linkBErr } = await admin.auth.admin.generateLink(paramsB);
       if (linkBErr || !linkB) throw new Error(`generateLink: ${linkBErr?.message ?? "no link"}`);
       const uidB = linkB.user.id;
       const rawB = linkB.user as unknown as { encrypted_password?: string | null };
