@@ -83,14 +83,17 @@ export async function paystackFetch<T>(
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     });
     const parsed = (await response.json().catch(() => null)) as
-      | { status?: boolean; message?: string; data?: T }
+      | { status?: boolean; message?: string; data?: T & { message?: string } }
       | null;
 
     if (!response.ok || !parsed?.status) {
       return {
         ok: false,
         status: response.status,
-        message: parsed?.message ?? `Paystack request failed (${response.status})`,
+        // Paystack's top-level message can be a generic "Charge attempted"
+        // even when the charge itself was declined — prefer the specific
+        // data.message (e.g. test-mode phone declination reasons).
+        message: parsed?.data?.message ?? parsed?.message ?? `Paystack request failed (${response.status})`,
       };
     }
     return { ok: true, status: response.status, data: parsed.data };
@@ -321,12 +324,16 @@ export async function settleChargeSuccess(
   }
 
   // Mirror onto the legacy escrow row so the existing trip flow stays correct.
-  const legacyPaymentId = (txn.metadata as { payment_id?: string } | null)?.payment_id ?? txn.trip_id;
-  if (legacyPaymentId) {
+  // metadata.payment_id targets payments.id; the trip-only fallback must match
+  // on trip_id — never pair one column with the other's value.
+  const legacyMetadata = (txn.metadata ?? {}) as { payment_id?: string };
+  const legacyPaymentId = legacyMetadata.payment_id ?? null;
+  const legacyTripId = txn.trip_id ?? null;
+  if (legacyPaymentId || legacyTripId) {
     const { data: payment } = await admin
       .from("payments")
       .select("id, trip_id, status")
-      .eq(txn.trip_id ? "trip_id" : "id", legacyPaymentId)
+      .eq(legacyPaymentId ? "id" : "trip_id", (legacyPaymentId ?? legacyTripId) as string)
       .maybeSingle();
     if (payment && ["PENDING", "AUTHORIZED", "FAILED"].includes(payment.status)) {
       await admin

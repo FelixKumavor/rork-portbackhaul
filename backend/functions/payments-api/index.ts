@@ -184,10 +184,12 @@ Deno.serve(async (req) => {
           null;
         if (!email) throw new AppError("EMAIL_REQUIRED", 400);
 
-        const requestKey =
-          typeof body.request_key === "string" && body.request_key.length > 0 && body.request_key.length <= 64
-            ? body.request_key
-            : crypto.randomUUID();
+        // request_key is a uuid column — coerce anything else to a fresh uuid
+        // so a malformed client value cannot break the idempotency insert.
+        const requestKeyIsUuid =
+          typeof body.request_key === "string" &&
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.request_key);
+        const requestKey = requestKeyIsUuid ? (body.request_key as string) : crypto.randomUUID();
 
         // Amounts and payee come from the database — never from the client.
         const { data: payment } = await admin
@@ -209,13 +211,16 @@ Deno.serve(async (req) => {
           return json({ ...momoClientView(existing), provider_configured: Boolean(paystackSecretKey()) });
         }
 
-        // Duplicate guard: one active charge per payment.
+        // Duplicate guard: one live or settled charge per payment. Including
+        // SUCCESS keeps a paid payment from being charged again even if the
+        // escrow mirror on the legacy row has not run yet.
         if (payment.trip_id) {
           const { data: active } = await admin
             .from("payment_transactions")
             .select("reference")
             .eq("trip_id", payment.trip_id)
-            .in("status", ["PENDING", "PROCESSING"])
+            .in("status", ["PENDING", "PROCESSING", "SUCCESS"])
+            .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
           if (active) {
