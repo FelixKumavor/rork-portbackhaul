@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { describeError } from "@/lib/errors";
+import { describeError, describeFunctionError } from "@/lib/errors";
 import { formatDateTime } from "@/lib/format";
 
 const NETWORKS = [
@@ -100,7 +100,7 @@ export function MomoVerificationCard() {
       const { error } = await supabase.functions.invoke("initialize-momo-transaction", {
         body: { action: "save", momo_phone: phone, momo_network: network, full_name: profile?.full_name ?? "" },
       });
-      if (error) throw new Error(describeError(error));
+      if (error) throw new Error(await describeFunctionError(error));
     },
     onSuccess: () => {
       toast.success("Mobile Money details saved");
@@ -114,7 +114,7 @@ export function MomoVerificationCard() {
     const { data, error } = await supabase.functions.invoke("verify-momo-transaction", {
       body: { reference },
     });
-    if (error) throw new Error(describeError(error));
+    if (error) throw new Error(await describeFunctionError(error));
     const body = data as { status?: string; reason?: string | null; error?: string };
     return body.status ?? body.error ?? "PENDING";
   }
@@ -162,7 +162,7 @@ export function MomoVerificationCard() {
       const { data, error } = await supabase.functions.invoke("initialize-momo-transaction", {
         body: { action: "initialize", momo_phone: phone, momo_network: network, full_name: profile?.full_name ?? "" },
       });
-      if (error) throw new Error(describeError(error));
+      if (error) throw new Error(await describeFunctionError(error));
       const body = data as { reference?: string; verification_status?: string; display_text?: string | null };
       if (!body.reference) throw new Error("INITIALIZATION_FAILED");
       return body;
@@ -176,8 +176,12 @@ export function MomoVerificationCard() {
       refresh();
       if (body.verification_status === "PENDING" && body.reference) startPolling(body.reference);
     },
-    onError: (e) => {
-      toast.error(describeError(e, "Verification could not be started."));
+    onError: async (e) => {
+      stopPolling();
+      const message = describeError(e, "Verification could not be started.");
+      toast.error(message);
+      // Keep the provider's own decline reason visible inline, not just in the toast.
+      setDetail(message);
       refresh();
     },
   });
@@ -213,8 +217,9 @@ export function MomoVerificationCard() {
         <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-status-danger/30 bg-status-danger-bg p-4 text-sm text-status-danger">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span>
-            The last verification attempt failed. Check the number and try again — submitting new details clears
-            the failure.
+            {detail && status === "FAILED"
+              ? detail
+              : "The last verification attempt failed. Check the number and try again — submitting new details clears the failure."}
           </span>
         </div>
       ) : null}
@@ -272,7 +277,6 @@ export function MomoVerificationCard() {
       ) : detail ? (
         <p className="mt-4 text-sm text-muted-foreground">{detail}</p>
       ) : null}
-
       <div className="mt-5 flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => saveDetails.mutate()} disabled={!canSubmit || awaitingApproval}>
           {saveDetails.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}

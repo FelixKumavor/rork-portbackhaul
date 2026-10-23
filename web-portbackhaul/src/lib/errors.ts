@@ -1,4 +1,4 @@
-import type { PostgrestError } from "@supabase/supabase-js";
+import { FunctionsHttpError, type PostgrestError } from "@supabase/supabase-js";
 
 /** Structured authorization / workflow error codes raised by backend functions. */
 export const ERROR_MESSAGES: Record<string, string> = {
@@ -39,6 +39,15 @@ export const ERROR_MESSAGES: Record<string, string> = {
   INVALID_MOMO_NETWORK: "Choose a supported mobile money network (MTN, Telecel or AirtelTigo).",
   INVALID_AMOUNT: "Enter a valid payment amount.",
   EMAIL_REQUIRED: "An email address is required by the payment provider. Add one to your profile.",
+  INVALID_PHONE_NUMBER: "Enter a valid Ghana mobile money number (e.g. 024 123 4567).",
+  UNSUPPORTED_NETWORK: "Choose a supported mobile money network (MTN, Telecel or AirtelTigo).",
+  ALREADY_VERIFIED: "This Mobile Money number is already verified.",
+  PAYSTACK_NOT_CONFIGURED: "Mobile Money verification is temporarily unavailable. Please try again later.",
+  PAYMENT_METHOD_SAVE_FAILED: "We couldn't save your Mobile Money details. Please try again.",
+  INITIALIZATION_FAILED: "The verification charge could not be sent. Check the number and try again.",
+  VERIFICATION_UNAVAILABLE: "Verification is temporarily unavailable. Please try again in a moment.",
+  REFERENCE_REQUIRED: "Verification reference missing — save your details and start again.",
+  NOT_FOUND: "We couldn't find that verification record. Start the verification again.",
 };
 
 /**
@@ -92,6 +101,31 @@ export function describeError(error: unknown, fallback = "Something went wrong. 
   }
 
   return raw;
+}
+
+/**
+ * Unwraps an Edge Function `FunctionsHttpError` — whose HTTP status message
+ * ("Edge Function returned a non-2xx status code") hides the real payload —
+ * and resolves to a human-readable message. Prefers the provider's own
+ * `message` (e.g. Paystack's decline reason), then our structured code copy,
+ * then the generic `describeError` behaviour.
+ */
+export async function describeFunctionError(
+  error: unknown,
+  fallback = "Something went wrong. Please try again.",
+): Promise<string> {
+  if (error instanceof FunctionsHttpError) {
+    try {
+      const body = (await error.context.json()) as { error?: string; message?: string | null };
+      const providerMessage = typeof body.message === "string" ? body.message.trim() : "";
+      if (providerMessage) return providerMessage;
+      const code = typeof body.error === "string" ? body.error : "";
+      if (code && ERROR_MESSAGES[code]) return ERROR_MESSAGES[code];
+    } catch {
+      /* non-JSON body — fall through to the generic describer */
+    }
+  }
+  return describeError(error, fallback);
 }
 
 /** Extracts the structured error code when the backend raised one. */
