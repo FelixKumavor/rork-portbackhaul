@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createHmac } from "node:crypto";
 import {
   getTransaction,
@@ -141,7 +141,10 @@ Deno.serve(async (req) => {
   try {
     // ---- Mobile Money transaction handling (payment_transactions) -------
     if (event.event === "charge.success" || event.event === "charge.failed") {
-      const txn = reference ? await getTransaction(supabase, { reference }) : null;
+      // MoMo-verification charges settle user_payment_methods instead of the
+      // payment_transactions ledger — branch on the charge's metadata marker.
+      const handledVerification = await settleVerificationEvent(supabase, reference, event);
+      const txn = handledVerification ? null : reference ? await getTransaction(supabase, { reference }) : null;
       if (txn) {
         // Corroborate the signed event with an authoritative verify call when
         // the provider is reachable; fall back to the signed event payload.
@@ -339,6 +342,74 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Processing failed" }, 500);
   }
 });
+
+/**
+ * Settles a MoMo-verification charge event against user_payment_methods.
+ * Returns true when the reference belongs to a verification charge (so the
+ * payment_transactions path is skipped). Only a corroborated successful charge
+ * marks the method VERIFIED; guarded transitions keep replays harmless.
+ */
+async function settleVerificationEvent(
+  supabase: SupabaseClient,
+  reference: string | null,
+  event: PaystackEvent,
+): Promise<boolean> {
+  if (!reference || !event.event.startsWith("charge.")) return false;
+  const metadata = event.data?.metadata ?? {};
+  if (metadata.kind !== "momo_verification") return false;
+
+  const { data: method } = await supabase
+    .from("user_payment_methods")
+    .select("id, user_id, verification_status")
+    .eq("paystack_transaction_reference", reference)
+    .maybeSingle();
+  if (!method) return false;
+
+  const row = method as { id: string; user_id: string; verification_status: string };
+  const now = nowIso();
+
+  if (event.event === "charge.success") {
+    // Corroborate the signed event with an authoritative verify call when the
+    // provider is reachable; fall back to the signed payload.
+    const verify = await supabaseVerify(supabase, reference);
+    const confirmed = verify ?? (event.data as unknown as PaystackChargeData);
+    if (confirmed?.status !== "success") return true; // unconfirmed — stay PENDING
+
+    const customerCode =
+      (confirmed as PaystackChargeData & { customer?: { customer_code?: string } }).customer?.customer_code ?? null;
+    const { error } = await supabase
+      .from("user_payment_methods")
+      .update({
+        verification_status: "VERIFIED",
+        verified_at: now,
+        paystack_customer_code: customerCode,
+        updated_at: now,
+      })
+      .eq("id", row.id)
+      .in("verification_status", ["PENDING", "FAILED"]);
+    if (error) {
+      console.error(`Verification settle failed for ${reference}: ${error.message}`);
+      return true;
+    }
+    await supabase.from("audit_logs").insert({
+      actor_id: row.user_id,
+      actor_role: "system",
+      action: "MOMO_VERIFICATION_CONFIRMED",
+      entity_type: "user_payment_method",
+      entity_id: row.id,
+      metadata: { reference, confirmed_by: "webhook" },
+    });
+    return true;
+  }
+
+  // charge.failed — a declined verification attempt is FAILED, never VERIFIED.
+  await supabase
+    .from("user_payment_methods")
+    .update({ verification_status: "FAILED", updated_at: now })
+    .eq("id", row.id)
+    .in("verification_status", ["PENDING"]);
+  return true;
+}
 
 /**
  * Best-effort authoritative verification of a charge against Paystack.

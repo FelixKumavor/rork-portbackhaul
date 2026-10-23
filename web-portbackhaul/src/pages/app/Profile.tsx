@@ -3,6 +3,7 @@ import { CheckCircle2, FileUp, Loader2, ShieldCheck, Trash2, Upload } from "luci
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { MomoVerificationCard } from "@/components/MomoVerificationCard";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -143,6 +144,8 @@ export default function ProfilePage() {
           Account status, role and verification decisions can only be changed by an authorised administrator.
         </p>
       </section>
+
+      <MomoVerificationCard />
 
       <section className="panel p-6">
         <div className="flex items-start justify-between gap-4">
