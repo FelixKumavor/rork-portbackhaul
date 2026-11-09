@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, FileUp, Loader2, ShieldCheck, Trash2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { MomoVerificationCard } from "@/components/MomoVerificationCard";
+import { MembershipBadge } from "@/components/reputation/MembershipBadge";
 import { PageHeader } from "@/components/PageHeader";
 import { Seo } from "@/components/Seo";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -17,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { describeError } from "@/lib/errors";
 import { formatDate } from "@/lib/format";
 import { ROLE_LABEL } from "@/lib/roles";
+import { useTrustProfile } from "@/lib/reputation";
 
 interface VerificationDocument {
   id: string;
@@ -33,6 +36,7 @@ export default function ProfilePage() {
   const { profile, user, refresh } = useAuth();
   const queryClient = useQueryClient();
   const { data: requirements } = useVerificationRequirements(profile?.role);
+  const { data: reputation } = useTrustProfile(Boolean(user?.id));
 
   const [fullName, setFullName] = useState<string>(profile?.full_name ?? "");
   const [phone, setPhone] = useState<string>(profile?.phone ?? "");
@@ -143,6 +147,29 @@ export default function ProfilePage() {
         <p className="mt-3 text-xs text-muted-foreground">
           Account status, role and verification decisions can only be changed by an authorised administrator.
         </p>
+      </section>
+
+      <section className="panel flex flex-wrap items-center justify-between gap-4 p-6">
+        <div>
+          <h2 className="text-base font-bold">PortBackhaul Trust Profile</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Your verified trust score, membership benefits and Elite Circle loyalty points.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <MembershipBadge level={reputation?.membership_level} />
+            <p className="mt-1 font-mono text-xs tabular-nums text-muted-foreground">
+              Trust score {reputation?.trust_score ?? "—"}/100 · {reputation?.loyalty_points ?? 0} pts
+            </p>
+          </div>
+          <Link
+            to="/app/trust"
+            className="rounded-md bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Open Trust Profile
+          </Link>
+        </div>
       </section>
 
       <MomoVerificationCard />

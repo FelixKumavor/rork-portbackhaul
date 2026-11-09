@@ -14,6 +14,7 @@ import AdminDisputes from "./pages/admin/AdminDisputes";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPayments from "./pages/admin/AdminPayments";
+import AdminReputation from "./pages/admin/AdminReputation";
 import {
   AdminCargo,
   AdminClearingAgents,
@@ -45,6 +46,8 @@ import Payments from "./pages/app/owner/Payments";
 import Shipments from "./pages/app/owner/Shipments";
 import ProfilePage from "./pages/app/Profile";
 import ShipmentDetail from "./pages/app/ShipmentDetail";
+import TrustProfilePage from "./pages/app/TrustProfile";
+import LoyaltyPage from "./pages/app/Loyalty";
 import TripDetail from "./pages/app/TripDetail";
 import AuthCallback from "./pages/auth/AuthCallback";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -120,6 +123,8 @@ const App = () => (
               >
                 <Route index element={<AppIndexRedirect />} />
                 <Route path="profile" element={<ProfilePage />} />
+                <Route path="trust" element={<TrustProfilePage />} />
+                <Route path="loyalty" element={<LoyaltyPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
 
                 {/* cargo owner */}
@@ -305,6 +310,7 @@ const App = () => (
                 <Route path="trips" element={<AdminTrips />} />
                 <Route path="payments" element={<AdminPayments />} />
                 <Route path="disputes" element={<AdminDisputes />} />
+                <Route path="reputation" element={<AdminReputation />} />
                 <Route path="audit-logs" element={<AdminAuditLogs />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="integrations" element={<AdminIntegrations />} />

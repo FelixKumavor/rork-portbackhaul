@@ -906,13 +906,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "disputes_raised_by_fkey"
-            columns: ["raised_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "disputes_shipment_id_fkey"
             columns: ["shipment_id"]
             isOneToOne: false
@@ -1064,6 +1057,44 @@ export type Database = {
           {
             foreignKeyName: "drivers_truck_owner_id_fkey"
             columns: ["truck_owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      elite_circle_points: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          points: number
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          points: number
+          reference_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          points?: number
+          reference_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "elite_circle_points_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1413,6 +1444,36 @@ export type Database = {
           },
         ]
       }
+      membership_benefits: {
+        Row: {
+          active: boolean
+          benefit_name: string
+          description: string
+          id: string
+          membership_level: string
+          role: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          benefit_name: string
+          description: string
+          id?: string
+          membership_level: string
+          role?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          benefit_name?: string
+          description?: string
+          id?: string
+          membership_level?: string
+          role?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -1444,15 +1505,7 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -1805,20 +1858,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "payment_transactions_payer_id_fkey"
-            columns: ["payer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_transactions_recipient_user_id_fkey"
-            columns: ["recipient_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "payment_transactions_shipment_id_fkey"
             columns: ["shipment_id"]
             isOneToOne: false
@@ -1926,13 +1965,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "payments_payer_id_fkey"
-            columns: ["payer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "payments_shipment_id_fkey"
             columns: ["shipment_id"]
@@ -2353,6 +2385,260 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          points_awarded: number
+          referred_user_id: string
+          referrer_id: string
+          status: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points_awarded?: number
+          referred_user_id: string
+          referrer_id: string
+          status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points_awarded?: number
+          referred_user_id?: string
+          referrer_id?: string
+          status?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reputation_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          event_type: string
+          id: string
+          points_change: number
+          reference_id: string | null
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          event_type: string
+          id?: string
+          points_change: number
+          reference_id?: string | null
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          points_change?: number
+          reference_id?: string | null
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reputation_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reputation_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reputation_settings: {
+        Row: {
+          active: boolean
+          id: string
+          membership_level: string
+          minimum_account_age_days: number
+          minimum_completed_trips: number
+          minimum_score: number
+          require_verification: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          membership_level: string
+          minimum_account_age_days: number
+          minimum_completed_trips: number
+          minimum_score: number
+          require_verification?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          membership_level?: string
+          minimum_account_age_days?: number
+          minimum_completed_trips?: number
+          minimum_score?: number
+          require_verification?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reputation_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_catalogue: {
+        Row: {
+          active: boolean
+          cost_points: number
+          created_at: string
+          description: string
+          id: string
+          min_membership_level: string
+          reward_type: string
+          role_scope: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          cost_points: number
+          created_at?: string
+          description: string
+          id?: string
+          min_membership_level?: string
+          reward_type: string
+          role_scope?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          cost_points?: number
+          created_at?: string
+          description?: string
+          id?: string
+          min_membership_level?: string
+          reward_type?: string
+          role_scope?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_catalogue_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_redemptions: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          points_spent: number
+          reference_id: string
+          reward_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          points_spent: number
+          reference_id: string
+          reward_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          points_spent?: number
+          reference_id?: string
+          reward_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_redemptions_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "reward_catalogue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_redemptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles: {
         Row: {
           created_at: string
@@ -2441,13 +2727,6 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shipment_assignments_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2648,20 +2927,6 @@ export type Database = {
             columns: ["assignment_id"]
             isOneToOne: false
             referencedRelation: "shipment_assignments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trip_assignments_cargo_owner_id_fkey"
-            columns: ["cargo_owner_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trip_assignments_clearing_agent_id_fkey"
-            columns: ["clearing_agent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2914,6 +3179,70 @@ export type Database = {
           },
         ]
       }
+      user_appeals: {
+        Row: {
+          appeal_reason: string
+          created_at: string
+          decided_at: string | null
+          decision: string | null
+          decision_notes: string | null
+          evidence_url: string | null
+          id: string
+          reviewed_by: string | null
+          status: string
+          user_id: string
+          violation_id: string
+        }
+        Insert: {
+          appeal_reason: string
+          created_at?: string
+          decided_at?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          evidence_url?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+          violation_id: string
+        }
+        Update: {
+          appeal_reason?: string
+          created_at?: string
+          decided_at?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          evidence_url?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+          violation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_appeals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_appeals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_appeals_violation_id_fkey"
+            columns: ["violation_id"]
+            isOneToOne: true
+            referencedRelation: "user_violations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_payment_methods: {
         Row: {
           created_at: string
@@ -2960,6 +3289,72 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_payment_methods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_reputation: {
+        Row: {
+          account_standing: string
+          cancelled_trips: number
+          completed_trips: number
+          customer_satisfaction: number
+          id: string
+          loyalty_points: number
+          membership_level: string
+          on_time_deliveries: number
+          payment_compliance: number
+          referral_code: string
+          referred_by: string | null
+          trust_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_standing?: string
+          cancelled_trips?: number
+          completed_trips?: number
+          customer_satisfaction?: number
+          id?: string
+          loyalty_points?: number
+          membership_level?: string
+          on_time_deliveries?: number
+          payment_compliance?: number
+          referral_code: string
+          referred_by?: string | null
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_standing?: string
+          cancelled_trips?: number
+          completed_trips?: number
+          customer_satisfaction?: number
+          id?: string
+          loyalty_points?: number
+          membership_level?: string
+          on_time_deliveries?: number
+          payment_compliance?: number
+          referral_code?: string
+          referred_by?: string | null
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reputation_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_reputation_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "profiles"
@@ -3114,6 +3509,69 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_verification_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_violations: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decision: string | null
+          decision_notes: string | null
+          description: string
+          evidence_url: string | null
+          id: string
+          reviewed_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string
+          violation_type: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          description: string
+          evidence_url?: string | null
+          id?: string
+          reviewed_by?: string | null
+          severity: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          violation_type: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          description?: string
+          evidence_url?: string | null
+          id?: string
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_violations_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_violations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -3583,7 +4041,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      trust_profiles_public: {
+        Row: {
+          account_standing: string | null
+          cancellation_rate: number | null
+          completed_trips: number | null
+          customer_satisfaction: number | null
+          full_name: string | null
+          is_verified: boolean | null
+          loyalty_points: number | null
+          membership_level: string | null
+          on_time_rate: number | null
+          payment_compliance: number | null
+          role: string | null
+          trip_completion_rate: number | null
+          trust_score: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reputation_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_cargo_assignment: {
@@ -3775,7 +4259,29 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      apply_reputation_event: {
+        Args: {
+          p_actor?: string
+          p_description: string
+          p_event_type: string
+          p_points: number
+          p_reference_id: string
+          p_user_id: string
+          p_verified?: boolean
+        }
+        Returns: boolean
+      }
       assert_approved_role: { Args: { p_role: string }; Returns: string }
+      award_loyalty_points: {
+        Args: {
+          p_description: string
+          p_points: number
+          p_reference_id: string
+          p_txn_type: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       can_view_vendor_documents: { Args: never; Returns: boolean }
       can_view_vendors: { Args: never; Returns: boolean }
       confirm_delivery: {
@@ -3817,6 +4323,16 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      create_category_shipment: {
+        Args: {
+          p_agent_id: string
+          p_cargo_type: string
+          p_destination: string
+          p_origin_text: string
+          p_weight_kg: number
+        }
+        Returns: string
       }
       current_account_status: { Args: never; Returns: string }
       current_role_key: { Args: never; Returns: string }
@@ -3931,6 +4447,7 @@ export type Database = {
           driver_name: string
           driver_verification: string
           is_available: boolean
+          priority_tier: string
           registration_no: string
           truck_id: string
           truck_type: string
@@ -3983,17 +4500,31 @@ export type Database = {
         Args: { p_new: string; p_note: string; p_trip_id: string }
         Returns: undefined
       }
-      record_trip_location: {
-        Args: {
-          p_accuracy?: number
-          p_heading?: number
-          p_lat: number
-          p_lng: number
-          p_speed?: number
-          p_trip_id: string
-        }
-        Returns: boolean
-      }
+      recalc_membership: { Args: { p_user_id: string }; Returns: string }
+      recalc_trust_stats: { Args: { p_user_id: string }; Returns: undefined }
+      record_trip_location:
+        | {
+            Args: {
+              p_accuracy?: number
+              p_heading?: number
+              p_lat: number
+              p_lng: number
+              p_speed?: number
+              p_trip_id: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              p_accuracy?: number
+              p_heading?: number
+              p_lat: number
+              p_lng: number
+              p_speed?: number
+              p_trip_id: string
+            }
+            Returns: boolean
+          }
       request_truck: {
         Args: {
           p_capacity: number

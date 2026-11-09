@@ -1,4 +1,5 @@
 import {
+  Award,
   ClipboardList,
   CreditCard,
   FileText,
@@ -25,6 +26,7 @@ const ADMIN_NAV: NavItem[] = [
   { to: "/admin/trips", label: "Trips", icon: MapPin },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
   { to: "/admin/disputes", label: "Disputes", icon: ClipboardList },
+  { to: "/admin/reputation", label: "Reputation", icon: Award },
   { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/integrations", label: "Integrations", icon: Plug },

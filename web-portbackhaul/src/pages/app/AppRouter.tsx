@@ -1,4 +1,5 @@
 import {
+  Award,
   Bell,
   CheckCircle2,
   ClipboardList,
@@ -9,6 +10,7 @@ import {
   Package,
   Plus,
   QrCode,
+  ShieldCheck,
   Truck,
   Users,
   Wallet,
@@ -25,6 +27,8 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: "/app/shipments", label: "My Shipments", icon: Package, end: true },
     { to: "/app/shipments/new", label: "Create Shipment", icon: Plus },
     { to: "/app/payments", label: "Payments", icon: CreditCard },
+    { to: "/app/trust", label: "Trust Profile", icon: ShieldCheck },
+    { to: "/app/loyalty", label: "Elite Circle", icon: Award },
     { to: "/app/notifications", label: "Notifications", icon: Bell },
   ],
   CLEARING_AGENT: [
@@ -33,17 +37,23 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: "/app/agent/available-trucks", label: "Available Trucks", icon: Users },
     { to: "/app/agent/trips", label: "Active Trips", icon: MapPin },
     { to: "/app/agent/completed", label: "Completed", icon: CheckCircle2 },
+    { to: "/app/trust", label: "Trust Profile", icon: ShieldCheck },
+    { to: "/app/loyalty", label: "Elite Circle", icon: Award },
   ],
   TRUCK_OWNER: [
     { to: "/app/fleet", label: "My Trucks", icon: Truck, end: true },
     { to: "/app/fleet/drivers", label: "Drivers", icon: Users },
     { to: "/app/fleet/jobs", label: "Jobs & Earnings", icon: Wallet },
+    { to: "/app/trust", label: "Trust Profile", icon: ShieldCheck },
+    { to: "/app/loyalty", label: "Elite Circle", icon: Award },
     { to: "/app/notifications", label: "Notifications", icon: Bell },
   ],
   DRIVER: [
     { to: "/app/driver", label: "My Jobs", icon: Truck, end: true },
     { to: "/app/driver/trips", label: "My Trips", icon: MapPin },
     { to: "/app/driver/earnings", label: "Earnings", icon: Wallet },
+    { to: "/app/trust", label: "Trust Profile", icon: ShieldCheck },
+    { to: "/app/loyalty", label: "Elite Circle", icon: Award },
     { to: "/app/notifications", label: "Notifications", icon: Bell },
   ],
   LOADING_OPERATOR: [
